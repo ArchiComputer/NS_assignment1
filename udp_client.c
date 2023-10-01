@@ -13,7 +13,7 @@
 
 #define BUFSIZE 1024
 
-/* 
+/*
  * error - wrapper for perror
  */
 void error(char *msg) {
@@ -63,12 +63,14 @@ int main(int argc, char **argv) {
 
     /* send the message to the server */
     serverlen = sizeof(serveraddr);
-    n = sendto(sockfd, buf, strlen(buf), 0, &serveraddr, serverlen);
+    /* n = sendto(sockfd, buf, strlen(buf), 0, &serveraddr, serverlen); */
+    n = sendto(sockfd, buf, strlen(buf), 0, (const struct sockaddr *)&serveraddr, serverlen);
     if (n < 0) 
       error("ERROR in sendto");
     
     /* print the server's reply */
-    n = recvfrom(sockfd, buf, strlen(buf), 0, &serveraddr, &serverlen);
+    /* n = recvfrom(sockfd, buf, strlen(buf), 0, &serveraddr, &serverlen); */
+    n = recvfrom(sockfd, buf, BUFSIZE - 1, 0, (struct sockaddr *)&serveraddr, &serverlen);
     if (n < 0) 
       error("ERROR in recvfrom");
     printf("Echo from server: %s", buf);
