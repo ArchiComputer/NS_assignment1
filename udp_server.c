@@ -111,6 +111,8 @@ int main(int argc, char **argv) {
       printf("Received 'exit' message. Server is shutting down.\n");
       break; // Exit the loop and close the server
     }
+    else 
+      break;
 
     /* 
      * sendto: echo the input back to the client 
