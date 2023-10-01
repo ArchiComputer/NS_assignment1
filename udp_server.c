@@ -84,7 +84,8 @@ int main(int argc, char **argv) {
     /*
      * recvfrom: receive a UDP datagram from a client
      */
-    bzero(buf, BUFSIZE);
+    // bzero(buf, BUFSIZE);
+    memset(buf, 0, BUFSIZE);
     n = recvfrom(sockfd, buf, BUFSIZE, 0,
 		 (struct sockaddr *) &clientaddr, &clientlen);
     if (n < 0)
@@ -118,10 +119,5 @@ int main(int argc, char **argv) {
       printf("Received 'exit' message. Server is shutting down.\n");
       break; // Exit the loop and close the server
     }
-    else {
-      printf("ERROR 123123123");
-      break;
-    }
-
   }
 }
