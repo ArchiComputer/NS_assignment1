@@ -105,15 +105,6 @@ int main(int argc, char **argv) {
     /* printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf); */
     printf("server received %zu/%d bytes: %s\n", strlen(buf), n, buf);
 
-
-    // Check if the received message is "exit"
-    if (strcmp(buf, "exit") == 0) {
-      printf("Received 'exit' message. Server is shutting down.\n");
-      break; // Exit the loop and close the server
-    }
-    else 
-      break;
-
     /* 
      * sendto: echo the input back to the client 
      */
@@ -121,5 +112,17 @@ int main(int argc, char **argv) {
 	       (struct sockaddr *) &clientaddr, clientlen);
     if (n < 0) 
       error("ERROR in sendto");
+
+    // Check if the received message is "exit"
+    printf("buf : ", buf)
+    printf(strcmp(buf, "exit") == 0)
+    printf(strcmp(buf, "exit"))
+    if (strcmp(buf, "exit") == 0) {
+      printf("Received 'exit' message. Server is shutting down.\n");
+      break; // Exit the loop and close the server
+    }
+    else 
+      break;
+
   }
 }
