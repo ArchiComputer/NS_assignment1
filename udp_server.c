@@ -90,13 +90,6 @@ int main(int argc, char **argv) {
     if (n < 0)
       error("ERROR in recvfrom");
 
-    // Check if the received message is "exit"
-    if (strcmp(buf, "exit") == 0) {
-      printf("Received 'exit' message. Server is shutting down.\n");
-      break; // Exit the loop and close the server
-    }
-
-
     /* 
      * gethostbyaddr: determine who sent the datagram
      */
@@ -111,6 +104,13 @@ int main(int argc, char **argv) {
 	   hostp->h_name, hostaddrp);
     /* printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf); */
     printf("server received %zu/%d bytes: %s\n", strlen(buf), n, buf);
+
+
+    // Check if the received message is "exit"
+    if (strcmp(buf, "exit") == 0) {
+      printf("Received 'exit' message. Server is shutting down.\n");
+      break; // Exit the loop and close the server
+    }
 
     /* 
      * sendto: echo the input back to the client 
