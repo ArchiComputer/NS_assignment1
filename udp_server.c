@@ -114,9 +114,9 @@ int main(int argc, char **argv) {
       error("ERROR in sendto");
 
     // Check if the received message is "exit"
-    printf("buf : ", buf)
-    printf(strcmp(buf, "exit") == 0)
-    printf(strcmp(buf, "exit"))
+    printf("buf : ", buf);
+    printf(strcmp(buf, "exit") == 0);
+    printf(strcmp(buf, "exit"));
     if (strcmp(buf, "exit") == 0) {
       printf("Received 'exit' message. Server is shutting down.\n");
       break; // Exit the loop and close the server
