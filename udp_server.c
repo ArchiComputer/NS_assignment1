@@ -120,6 +120,7 @@ int main(int argc, char **argv) {
     }
     else {
       printf("ERROR 123123123");
+      break;
     }
 
   }
