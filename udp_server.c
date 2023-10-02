@@ -103,21 +103,135 @@ int main(int argc, char **argv) {
       error("ERROR on inet_ntoa\n");
     printf("server received datagram from %s (%s)\n", 
 	   hostp->h_name, hostaddrp);
-    /* printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf); */
     printf("server received %zu/%d bytes: %s\n", strlen(buf), n, buf);
 
-    /* 
-     * sendto: echo the input back to the client 
-     */
-    n = sendto(sockfd, buf, strlen(buf), 0, 
-	       (struct sockaddr *) &clientaddr, clientlen);
-    if (n < 0) 
-      error("ERROR in sendto");
+    // Check if the received message starts with "get "
+    if (strncmp(buf, "get ", 4) == 0) {
+      // Extract the file name from the message
+      char *file_name = buf + 4; // Skip the "get " prefix
 
+      // Remove any trailing newline character if present
+      char *newline = strchr(file_name, '\n');
+      if (newline != NULL) {
+        *newline = '\0';
+      }
+
+      // Open the requested file for reading
+      FILE *file = fopen(file_name, "rb");
+      if (file == NULL) {
+        printf("File not found or unable to open: %s\n", file_name);
+
+        // Send an error message to the client
+        n = sendto(sockfd, "File not found or unable to open.\n", 38, 0, 
+                  (struct sockaddr *) &clientaddr, clientlen);
+        if (n < 0) 
+          error("ERROR in sendto");
+      } else {
+        // Send the file in small chunks
+        char chunk[5120]; // 5KB chunk size
+        size_t read_size;
+
+        while ((read_size = fread(chunk, 1, sizeof(chunk), file)) > 0) {
+          n = sendto(sockfd, chunk, read_size, 0, 
+                    (struct sockaddr *) &clientaddr, clientlen);
+          if (n < 0) 
+            error("ERROR in sendto");
+        }
+
+        // Close the file
+        fclose(file);
+
+        printf("Sent file: %s\n", file_name);
+      }
+    }
+
+
+    // Check if the received message starts with "delete "
+    if (strncmp(buf, "delete ", 7) == 0) {
+      // Extract the file name from the message
+      char *file_name = buf + 7; // Skip the "delete " prefix
+
+      // Remove any trailing newline character if present
+      char *newline = strchr(file_name, '\n');
+      if (newline != NULL) {
+        *newline = '\0';
+      }
+
+      // Attempt to delete the file
+      if (remove(file_name) == 0) {
+        printf("Deleted file: %s\n", file_name);
+
+        // Send a success message to the client
+        n = sendto(sockfd, "File deleted successfully.\n", 27, 0, 
+                  (struct sockaddr *) &clientaddr, clientlen);
+        if (n < 0) 
+          error("ERROR in sendto");
+      } else {
+        printf("File not found or unable to delete: %s\n", file_name);
+
+        // Send an error message to the client
+        n = sendto(sockfd, "File not found or unable to delete.\n", 38, 0, 
+                  (struct sockaddr *) &clientaddr, clientlen);
+        if (n < 0) 
+          error("ERROR in sendto");
+      }
+    }
+
+    // Check if the received message is "ls"
+    if (strcmp(buf, "ls\n") == 0) {
+      printf("Received 'ls' message. Sending file list to client...\n");
+
+      // Execute the 'ls' command and capture the output
+      FILE *ls_output = popen("ls", "r");
+      if (ls_output == NULL) {
+        error("ERROR executing 'ls'");
+      }
+
+      // Read the output of 'ls' and send it to the client
+      while (fgets(buf, BUFSIZE, ls_output) != NULL) {
+        n = sendto(sockfd, buf, strlen(buf), 0,
+          (struct sockaddr *) &clientaddr, clientlen);
+        if (n < 0)
+          error("ERROR in sendto");
+      }
+
+      // Close the 'ls' output and send an end-of-list marker
+      pclose(ls_output);
+      n = sendto(sockfd, "END_OF_LIST\n", 12, 0,
+                (struct sockaddr *) &clientaddr, clientlen);
+      if (n < 0)
+        error("ERROR in sendto");
+
+      printf("File list sent.\n");
+    }
+
+     
     // Check if the received message is "exit"
     if (strcmp(buf, "exit\n") == 0) {
       printf("Received 'exit' message. Server is shutting down.\n");
+
+      
+      n = sendto(sockfd, buf, strlen(buf), 0, 
+          (struct sockaddr *) &clientaddr, clientlen);
+          // 수정사항, BUF에 정상종료 되었습니다.
       break; // Exit the loop and close the server
+    
+    // IF 문 동일 ls\n 이면 > 리스트를 확인하는 명령어 > buf에 넣고, n 해주기
+    // DELETE -> 파일을 삭제하는 처리로직 -> 처리 완료되었습니다 MSG -> BUF
+    // GET / PUT 
+
+
+    if (n < 0) 
+      error("ERROR in sendto");
     }
   }
 }
+
+
+
+
+
+
+
+
+
