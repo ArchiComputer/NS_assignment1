@@ -11,10 +11,12 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <fcntl.h>
+#include <openssl/md5.h>
 
 
 
 #define BUFSIZE 1024
+#define MD5_DIGEST_LENGTH 16
 
 /*
  * error - wrapper for perror
@@ -23,6 +25,23 @@ void error(char *msg) {
     perror(msg);
     exit(0);
 }
+
+void send_md5_hash(int sockfd, struct sockaddr_in serveraddr, socklen_t serverlen, char *file_name) {
+    unsigned char md5_hash[MD5_DIGEST_LENGTH];
+    calculate_md5_hash(file_name, md5_hash);
+    char md5_hash_str[MD5_DIGEST_LENGTH * 2 + 1];
+
+    // Convert the binary MD5 hash to a string for sending
+    for (int i = 0; i < MD5_DIGEST_LENGTH; i++) {
+        sprintf(md5_hash_str + 2 * i, "%02x", md5_hash[i]);
+    }
+    md5_hash_str[MD5_DIGEST_LENGTH * 2] = '\0';
+
+    // Send the MD5 hash to the server
+    sendto(sockfd, md5_hash_str, strlen(md5_hash_str), 0, (const struct sockaddr *)&serveraddr, serverlen);
+}
+
+
 
 int main(int argc, char **argv) {
     int sockfd, portno, n;
