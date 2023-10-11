@@ -166,7 +166,7 @@ int main(int argc, char **argv) {
       recvfrom(sockfd, receive_buf, BUFSIZE, 0, &clientaddr, &clientlen);
       printf("received %s\n", receive_buf);
       int file = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-      n = write(file, receive_buf, strlen(receive_buf))
+      n = write(file, receive_buf, strlen(receive_buf));
       if(n < 0)
         printf("writing to file failed\n");
       else
