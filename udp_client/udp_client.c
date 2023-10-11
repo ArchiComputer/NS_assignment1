@@ -124,6 +124,9 @@ int main(int argc, char **argv) {
     if (n < 0) 
       error("ERROR in recvfrom");
 
+    else
+      printf("byte received: %d\n", n);
+
     if (strncmp(buf, "READY\n", 6) == 0) {
         // Server is ready to receive the file, send the file name
         char file_name[BUFSIZE];
